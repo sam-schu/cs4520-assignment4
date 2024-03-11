@@ -2,8 +2,10 @@ package com.cs4520.assignment4.logic
 
 /**
  * Represents a single product (equipment or food).
+ *
+ * Contains a name, a price, and possibly an expiry date.
  */
-sealed class Product(val name: String, val expiryDate: String?, val price: Int) {
+sealed class Product(open val name: String, open val expiryDate: String?, open val price: Int) {
 
     companion object {
         /**
@@ -30,8 +32,8 @@ sealed class Product(val name: String, val expiryDate: String?, val price: Int) 
             )
 
             val subclassConstructor = when (data[1]) {
-                "Equipment" -> ::EquipmentProduct
-                "Food" -> ::FoodProduct
+                "Equipment" -> ::Equipment
+                "Food" -> ::Food
                 else -> throw IllegalArgumentException(
                     "The second data item (the product type) must be either \"Equipment\" or "
                     + "\"Food\""
@@ -51,27 +53,30 @@ sealed class Product(val name: String, val expiryDate: String?, val price: Int) 
             return subclassConstructor(name, expiryDate, price)
         }
     }
+
+    /**
+     * Represents a product of the "Equipment" type.
+     *
+     * Contains a name, a price, and possibly an expiry date.
+     */
+    data class Equipment(
+        override val name: String, override val expiryDate: String?, override val price: Int
+    ) : Product(name, expiryDate, price)
+
+    /**
+     * Represents a product of the "Food" type.
+     *
+     * Contains a name, a price, and possibly an expiry date.
+     */
+    data class Food(
+        override val name: String, override val expiryDate: String?, override val price: Int
+    ) : Product(name, expiryDate, price)
 }
-
-/**
- * Represents a product of the "Equipment" type.
- *
- * Contains a name, a price, and possibly an expiry date.
- */
-class EquipmentProduct(name: String, expiryDate: String?, price: Int) :
-    Product(name, expiryDate, price)
-
-/**
- * Represents a product of the "Food" type.
- *
- * Contains a name, a price, and possibly an expiry date.
- */
-class FoodProduct(name: String, expiryDate: String?, price: Int) : Product(name, expiryDate, price)
 
 /**
  * Manages a list of products and allows products to be mass imported from a list.
  */
-class ProductManager() {
+class ProductManager {
     private val products: MutableList<Product> = mutableListOf()
 
     /**

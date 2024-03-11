@@ -10,8 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.cs4520.assignment4.R
 import com.cs4520.assignment4.databinding.ProductListFragmentBinding
 import com.cs4520.assignment4.databinding.ProductListItemBinding
-import com.cs4520.assignment4.logic.EquipmentProduct
-import com.cs4520.assignment4.logic.FoodProduct
 import com.cs4520.assignment4.logic.Product
 import com.cs4520.assignment4.logic.ProductManager
 import com.cs4520.assignment4.productsDataset
@@ -61,11 +59,11 @@ private class RecyclerViewAdapter(private val products: List<Product>) :
         fun bind(product: Product) {
             with (binding) {
                 when (product) {
-                    is EquipmentProduct -> {
+                    is Product.Equipment -> {
                         productImage.setImageResource(R.drawable.equipment)
                         constraintLayout.setBackgroundResource(R.color.product_equipment_background)
                     }
-                    is FoodProduct -> {
+                    is Product.Food -> {
                         productImage.setImageResource(R.drawable.food)
                         constraintLayout.setBackgroundResource(R.color.product_food_background)
                     }
