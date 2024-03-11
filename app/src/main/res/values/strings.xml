@@ -1,3 +1,9 @@
 <resources>
   <string name="app_name">Assignment4</string>
+  <string name="username_hint">Username</string>
+  <string name="password_hint">Password</string>
+  <string name="login_button_text">Login</string>
+  <string name="invalid_credentials_msg">Invalid username/password. Please try again.</string>
+  <string name="product_type_img_description">product type</string>
+  <string name="product_price_text">$%1$d</string>
 </resources>
