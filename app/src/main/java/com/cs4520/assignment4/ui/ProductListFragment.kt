@@ -43,6 +43,7 @@ class ProductListFragment : Fragment() {
         }
 
         viewModel.importProductData(productsDataset)
+        viewModel.loadProductData()
     }
 }
 

@@ -1,8 +1,14 @@
 package com.cs4520.assignment4.logic
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.cs4520.assignment4.ApiService
+import com.cs4520.assignment4.RetrofitBuilder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Represents a single product (equipment or food).
@@ -98,5 +104,13 @@ class ProductsViewModel : ViewModel() {
      */
     fun importProductData(data: List<List<Any?>>) {
         _products.value = data.map { Product.fromDataList(it) }
+    }
+
+    fun loadProductData() {
+        val api = RetrofitBuilder.getRetrofit().create(ApiService::class.java)
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = api.getAllProducts()
+            Log.e("response", response.toString())
+        }
     }
 }
