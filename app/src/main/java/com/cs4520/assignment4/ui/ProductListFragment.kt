@@ -5,13 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cs4520.assignment4.R
 import com.cs4520.assignment4.databinding.ProductListFragmentBinding
 import com.cs4520.assignment4.databinding.ProductListItemBinding
 import com.cs4520.assignment4.logic.Product
-import com.cs4520.assignment4.logic.ProductManager
+import com.cs4520.assignment4.logic.ProductsViewModel
 import com.cs4520.assignment4.productsDataset
 
 /**
@@ -19,7 +20,7 @@ import com.cs4520.assignment4.productsDataset
  */
 class ProductListFragment : Fragment() {
     private lateinit var binding: ProductListFragmentBinding
-    private lateinit var productManager: ProductManager
+    private lateinit var viewModel: ProductsViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,12 +33,16 @@ class ProductListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        productManager = ProductManager().apply { importProductData(productsDataset) }
+        viewModel = ViewModelProvider(this)[ProductsViewModel::class.java]
 
-        with (binding.recyclerView) {
-            layoutManager = LinearLayoutManager(activity)
-            adapter = RecyclerViewAdapter(productManager.getAllProducts())
+        viewModel.products.observe(viewLifecycleOwner) {products ->
+            with (binding.recyclerView) {
+                layoutManager = LinearLayoutManager(activity)
+                adapter = RecyclerViewAdapter(products)
+            }
         }
+
+        viewModel.importProductData(productsDataset)
     }
 }
 

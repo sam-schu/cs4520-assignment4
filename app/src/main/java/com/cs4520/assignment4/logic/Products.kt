@@ -1,5 +1,9 @@
 package com.cs4520.assignment4.logic
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+
 /**
  * Represents a single product (equipment or food).
  *
@@ -76,11 +80,13 @@ sealed class Product(open val name: String, open val expiryDate: String?, open v
 /**
  * Manages a list of products and allows products to be mass imported from a list.
  */
-class ProductManager {
-    private val products: MutableList<Product> = mutableListOf()
+class ProductsViewModel : ViewModel() {
+    private val _products = MutableLiveData<List<Product>>()
+
+    val products: LiveData<List<Product>> = _products
 
     /**
-     * Adds products to the product manager, using data from the given list. Each list element
+     * Replaces the list of products using data from the given list. Each list element
      * should be a list representing a single product and containing the following elements:
      * 0: product name (String)
      * 1: product type ("Equipment" or "Food")
@@ -91,11 +97,6 @@ class ProductManager {
      *     products.
      */
     fun importProductData(data: List<List<Any?>>) {
-        products.addAll(data.map { Product.fromDataList(it) })
+        _products.value = data.map { Product.fromDataList(it) }
     }
-
-    /**
-     * Returns a copy of the list of all products held by the product manager.
-     */
-    fun getAllProducts(): List<Product> = products.toList()
 }
