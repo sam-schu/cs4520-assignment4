@@ -12,6 +12,7 @@ import com.cs4520.assignment4.R
 import com.cs4520.assignment4.databinding.ProductListFragmentBinding
 import com.cs4520.assignment4.databinding.ProductListItemBinding
 import com.cs4520.assignment4.logic.CategorizedProduct
+import com.cs4520.assignment4.logic.DisplayProducts
 import com.cs4520.assignment4.logic.ProductsViewModel
 import com.cs4520.assignment4.productsDataset
 
@@ -35,10 +36,16 @@ class ProductListFragment : Fragment() {
 
         viewModel = ViewModelProvider(this)[ProductsViewModel::class.java]
 
-        viewModel.products.observe(viewLifecycleOwner) {products ->
-            with (binding.recyclerView) {
-                layoutManager = LinearLayoutManager(activity)
-                adapter = RecyclerViewAdapter(products)
+        viewModel.displayProducts.observe(viewLifecycleOwner) {displayProducts ->
+            when (displayProducts) {
+                is DisplayProducts.Error -> binding.errorTextView.visibility = View.VISIBLE
+                is DisplayProducts.ProductList -> {
+                    with(binding.recyclerView) {
+                        layoutManager = LinearLayoutManager(activity)
+                        adapter = RecyclerViewAdapter(displayProducts.products)
+                        visibility = View.VISIBLE
+                    }
+                }
             }
         }
 

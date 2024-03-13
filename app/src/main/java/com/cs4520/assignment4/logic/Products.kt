@@ -100,13 +100,19 @@ data class ApiProduct(
     }
 }
 
+sealed interface DisplayProducts {
+    data object Error : DisplayProducts
+
+    data class ProductList(val products: List<CategorizedProduct>) : DisplayProducts
+}
+
 /**
  * Manages a list of products and allows products to be mass imported from a list.
  */
 class ProductsViewModel : ViewModel() {
-    private val _products = MutableLiveData<List<CategorizedProduct>>()
+    private val _displayProducts = MutableLiveData<DisplayProducts>()
 
-    val products: LiveData<List<CategorizedProduct>> = _products
+    val displayProducts: LiveData<DisplayProducts> = _displayProducts
 
     /**
      * Replaces the list of products using data from the given list. Each list element
@@ -120,7 +126,10 @@ class ProductsViewModel : ViewModel() {
      *     products.
      */
     fun importProductData(data: List<List<Any?>>) {
-        _products.value = data.map { CategorizedProduct.fromDataList(it) }
+        _displayProducts.value = DisplayProducts.ProductList(
+            data.map { CategorizedProduct.fromDataList(it) }
+        )
+        _displayProducts.value = DisplayProducts.Error
     }
 
     fun loadProductData() {
