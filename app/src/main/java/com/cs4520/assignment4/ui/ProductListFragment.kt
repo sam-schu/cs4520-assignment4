@@ -1,5 +1,6 @@
 package com.cs4520.assignment4.ui
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +23,8 @@ import com.cs4520.assignment4.productsDataset
 class ProductListFragment : Fragment() {
     private lateinit var binding: ProductListFragmentBinding
     private lateinit var viewModel: ProductsViewModel
+    private lateinit var rvAdapter:
+            UpdatableRecyclerViewAdapter<RecyclerViewAdapter.ViewHolder, CategorizedProduct>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,15 +39,20 @@ class ProductListFragment : Fragment() {
 
         viewModel = ViewModelProvider(this)[ProductsViewModel::class.java]
 
+        binding.recyclerView.layoutManager = LinearLayoutManager(activity)
+        rvAdapter = RecyclerViewAdapter()
+        binding.recyclerView.adapter = rvAdapter
+
         viewModel.displayProducts.observe(viewLifecycleOwner) {displayProducts ->
             when (displayProducts) {
-                is DisplayProducts.Error -> binding.errorTextView.visibility = View.VISIBLE
+                is DisplayProducts.Error -> {
+                    binding.recyclerView.visibility = View.INVISIBLE
+                    binding.errorTextView.visibility = View.VISIBLE
+                }
                 is DisplayProducts.ProductList -> {
-                    with(binding.recyclerView) {
-                        layoutManager = LinearLayoutManager(activity)
-                        adapter = RecyclerViewAdapter(displayProducts.products)
-                        visibility = View.VISIBLE
-                    }
+                    rvAdapter.updateItems(displayProducts.products)
+                    binding.errorTextView.visibility = View.INVISIBLE
+                    binding.recyclerView.visibility = View.VISIBLE
                 }
             }
         }
@@ -54,11 +62,19 @@ class ProductListFragment : Fragment() {
     }
 }
 
+private abstract class UpdatableRecyclerViewAdapter<VH : RecyclerView.ViewHolder, ItemType> :
+    RecyclerView.Adapter<VH>() {
+
+    abstract fun updateItems(newItems: List<ItemType>)
+}
+
 /**
  * The adapter for the RecyclerView displaying the list of products.
  */
-private class RecyclerViewAdapter(private val products: List<CategorizedProduct>) :
-    RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
+private class RecyclerViewAdapter :
+    UpdatableRecyclerViewAdapter<RecyclerViewAdapter.ViewHolder, CategorizedProduct>() {
+
+    private var products: List<CategorizedProduct> = listOf()
 
     /**
      * The ViewHolder for each item in the RecyclerView.
@@ -109,4 +125,9 @@ private class RecyclerViewAdapter(private val products: List<CategorizedProduct>
     }
 
     override fun getItemCount(): Int = products.size
+
+    override fun updateItems(newProducts: List<CategorizedProduct>) {
+        products = newProducts
+        notifyDataSetChanged()
+    }
 }

@@ -129,7 +129,6 @@ class ProductsViewModel : ViewModel() {
         _displayProducts.value = DisplayProducts.ProductList(
             data.map { CategorizedProduct.fromDataList(it) }
         )
-        _displayProducts.value = DisplayProducts.Error
     }
 
     fun loadProductData() {
