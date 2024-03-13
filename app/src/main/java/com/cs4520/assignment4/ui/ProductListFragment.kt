@@ -1,6 +1,5 @@
 package com.cs4520.assignment4.ui
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -43,22 +42,34 @@ class ProductListFragment : Fragment() {
         rvAdapter = RecyclerViewAdapter()
         binding.recyclerView.adapter = rvAdapter
 
-        viewModel.displayProducts.observe(viewLifecycleOwner) {displayProducts ->
-            when (displayProducts) {
-                is DisplayProducts.Error -> {
-                    binding.recyclerView.visibility = View.INVISIBLE
-                    binding.errorTextView.visibility = View.VISIBLE
-                }
-                is DisplayProducts.ProductList -> {
-                    rvAdapter.updateItems(displayProducts.products)
-                    binding.errorTextView.visibility = View.INVISIBLE
-                    binding.recyclerView.visibility = View.VISIBLE
-                }
-            }
-        }
+        viewModel.displayProducts.observe(viewLifecycleOwner, ::onDisplayProductsChanged)
 
         viewModel.importProductData(productsDataset)
         viewModel.loadProductData()
+    }
+
+    private fun onDisplayProductsChanged(displayProducts: DisplayProducts) {
+        with (binding) {
+            when (displayProducts) {
+                is DisplayProducts.Error -> {
+                    recyclerView.visibility = View.INVISIBLE
+                    noProductsTextView.visibility = View.INVISIBLE
+                    errorTextView.visibility = View.VISIBLE
+                }
+                is DisplayProducts.ProductList -> {
+                    if (displayProducts.products.isEmpty()) {
+                        recyclerView.visibility = View.INVISIBLE
+                        errorTextView.visibility = View.INVISIBLE
+                        noProductsTextView.visibility = View.VISIBLE
+                    } else {
+                        rvAdapter.updateItems(displayProducts.products)
+                        errorTextView.visibility = View.INVISIBLE
+                        noProductsTextView.visibility = View.INVISIBLE
+                        recyclerView.visibility = View.VISIBLE
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -126,8 +137,8 @@ private class RecyclerViewAdapter :
 
     override fun getItemCount(): Int = products.size
 
-    override fun updateItems(newProducts: List<CategorizedProduct>) {
-        products = newProducts
+    override fun updateItems(newItems: List<CategorizedProduct>) {
+        products = newItems
         notifyDataSetChanged()
     }
 }

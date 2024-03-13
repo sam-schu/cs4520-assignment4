@@ -7,4 +7,5 @@
   <string name="product_type_img_description">product type</string>
   <string name="product_price_text">$%1$f</string>
   <string name="products_error_text">An error has occurred.</string>
+  <string name="no_products_text">No products available.</string>
 </resources>

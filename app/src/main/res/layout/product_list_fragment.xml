@@ -24,4 +24,13 @@
         android:gravity="center"
         android:visibility="invisible"/>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/no_products_text_view"
+        android:text="@string/no_products_text"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:visibility="invisible"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
