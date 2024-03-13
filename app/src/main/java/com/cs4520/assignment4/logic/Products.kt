@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
  * Contains a name, a price, and possibly an expiry date.
  */
 sealed class CategorizedProduct(
-    open val name: String, open val expiryDate: String?, open val price: Int
+    open val name: String, open val expiryDate: String?, open val price: Double
 ) {
 
     companion object {
@@ -62,7 +62,7 @@ sealed class CategorizedProduct(
                 "The fourth data item (the price) must be an Int"
             )
 
-            return subclassConstructor(name, expiryDate, price)
+            return subclassConstructor(name, expiryDate, price.toDouble())
         }
     }
 
@@ -72,7 +72,7 @@ sealed class CategorizedProduct(
      * Contains a name, a price, and possibly an expiry date.
      */
     data class Equipment(
-        override val name: String, override val expiryDate: String?, override val price: Int
+        override val name: String, override val expiryDate: String?, override val price: Double
     ) : CategorizedProduct(name, expiryDate, price)
 
     /**
@@ -81,13 +81,24 @@ sealed class CategorizedProduct(
      * Contains a name, a price, and possibly an expiry date.
      */
     data class Food(
-        override val name: String, override val expiryDate: String?, override val price: Int
+        override val name: String, override val expiryDate: String?, override val price: Double
     ) : CategorizedProduct(name, expiryDate, price)
 }
 
 data class ApiProduct(
     val name: String, val type: String, val expiryDate: String?, val price: Double
-)
+) {
+    fun toCategorizedProduct(): CategorizedProduct {
+        return when (type) {
+            "Equipment" -> CategorizedProduct.Equipment(name, expiryDate, price)
+            "Food" -> CategorizedProduct.Food(name, expiryDate, price)
+            else -> throw IllegalStateException(
+                "The product type must be either \"Equipment\" or \"Food\" in order for it to be "
+                + "converted to a CategorizedProduct"
+            )
+        }
+    }
+}
 
 /**
  * Manages a list of products and allows products to be mass imported from a list.
@@ -115,8 +126,8 @@ class ProductsViewModel : ViewModel() {
     fun loadProductData() {
         val api = RetrofitBuilder.getRetrofit().create(ApiService::class.java)
         viewModelScope.launch(Dispatchers.IO) {
-            val response = api.getAllProducts()
-            Log.e("response", response.toString())
+            val products = api.getAllProducts().map { it.toCategorizedProduct() }
+            Log.e("products", products.toString())
         }
     }
 }
