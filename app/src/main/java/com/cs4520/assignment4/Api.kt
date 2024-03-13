@@ -1,6 +1,6 @@
 package com.cs4520.assignment4
 
-import com.cs4520.assignment4.logic.Product
+import com.cs4520.assignment4.logic.ApiProduct
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
@@ -26,5 +26,5 @@ object RetrofitBuilder {
 
 interface ApiService {
     @GET(Api.ENDPOINT)
-    suspend fun getAllProducts(): List<Product>
+    suspend fun getAllProducts(): List<ApiProduct>
 }

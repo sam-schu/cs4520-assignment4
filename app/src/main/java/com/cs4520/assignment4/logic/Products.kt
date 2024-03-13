@@ -15,7 +15,9 @@ import kotlinx.coroutines.launch
  *
  * Contains a name, a price, and possibly an expiry date.
  */
-sealed class Product(open val name: String, open val expiryDate: String?, open val price: Int) {
+sealed class CategorizedProduct(
+    open val name: String, open val expiryDate: String?, open val price: Int
+) {
 
     companion object {
         /**
@@ -30,7 +32,7 @@ sealed class Product(open val name: String, open val expiryDate: String?, open v
          *
          * @throws IllegalArgumentException if the aforementioned list structure is not followed.
          */
-        fun fromDataList(data: List<Any?>): Product {
+        fun fromDataList(data: List<Any?>): CategorizedProduct {
             if (data.size != 4) {
                 throw IllegalArgumentException(
                     "Exactly 4 data items must be provided to initialize a product"
@@ -71,7 +73,7 @@ sealed class Product(open val name: String, open val expiryDate: String?, open v
      */
     data class Equipment(
         override val name: String, override val expiryDate: String?, override val price: Int
-    ) : Product(name, expiryDate, price)
+    ) : CategorizedProduct(name, expiryDate, price)
 
     /**
      * Represents a product of the "Food" type.
@@ -80,16 +82,20 @@ sealed class Product(open val name: String, open val expiryDate: String?, open v
      */
     data class Food(
         override val name: String, override val expiryDate: String?, override val price: Int
-    ) : Product(name, expiryDate, price)
+    ) : CategorizedProduct(name, expiryDate, price)
 }
+
+data class ApiProduct(
+    val name: String, val type: String, val expiryDate: String?, val price: Double
+)
 
 /**
  * Manages a list of products and allows products to be mass imported from a list.
  */
 class ProductsViewModel : ViewModel() {
-    private val _products = MutableLiveData<List<Product>>()
+    private val _products = MutableLiveData<List<CategorizedProduct>>()
 
-    val products: LiveData<List<Product>> = _products
+    val products: LiveData<List<CategorizedProduct>> = _products
 
     /**
      * Replaces the list of products using data from the given list. Each list element
@@ -103,7 +109,7 @@ class ProductsViewModel : ViewModel() {
      *     products.
      */
     fun importProductData(data: List<List<Any?>>) {
-        _products.value = data.map { Product.fromDataList(it) }
+        _products.value = data.map { CategorizedProduct.fromDataList(it) }
     }
 
     fun loadProductData() {

@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.cs4520.assignment4.R
 import com.cs4520.assignment4.databinding.ProductListFragmentBinding
 import com.cs4520.assignment4.databinding.ProductListItemBinding
-import com.cs4520.assignment4.logic.Product
+import com.cs4520.assignment4.logic.CategorizedProduct
 import com.cs4520.assignment4.logic.ProductsViewModel
 import com.cs4520.assignment4.productsDataset
 
@@ -50,7 +50,7 @@ class ProductListFragment : Fragment() {
 /**
  * The adapter for the RecyclerView displaying the list of products.
  */
-private class RecyclerViewAdapter(private val products: List<Product>) :
+private class RecyclerViewAdapter(private val products: List<CategorizedProduct>) :
     RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
 
     /**
@@ -62,14 +62,14 @@ private class RecyclerViewAdapter(private val products: List<Product>) :
         /**
          * Updates the view to represent the given product's information.
          */
-        fun bind(product: Product) {
+        fun bind(product: CategorizedProduct) {
             with (binding) {
                 when (product) {
-                    is Product.Equipment -> {
+                    is CategorizedProduct.Equipment -> {
                         productImage.setImageResource(R.drawable.equipment)
                         constraintLayout.setBackgroundResource(R.color.product_equipment_background)
                     }
-                    is Product.Food -> {
+                    is CategorizedProduct.Food -> {
                         productImage.setImageResource(R.drawable.food)
                         constraintLayout.setBackgroundResource(R.color.product_food_background)
                     }
