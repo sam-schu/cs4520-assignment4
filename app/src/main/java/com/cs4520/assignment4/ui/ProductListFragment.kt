@@ -14,7 +14,6 @@ import com.cs4520.assignment4.databinding.ProductListItemBinding
 import com.cs4520.assignment4.logic.CategorizedProduct
 import com.cs4520.assignment4.logic.DisplayProducts
 import com.cs4520.assignment4.logic.ProductsViewModel
-import com.cs4520.assignment4.productsDataset
 
 /**
  * The fragment displaying the list of products.
@@ -44,7 +43,6 @@ class ProductListFragment : Fragment() {
 
         viewModel.displayProducts.observe(viewLifecycleOwner, ::onDisplayProductsChanged)
 
-        viewModel.importProductData(productsDataset)
         viewModel.loadProductData()
     }
 
