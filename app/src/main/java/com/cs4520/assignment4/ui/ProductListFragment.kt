@@ -50,16 +50,15 @@ class ProductListFragment : Fragment() {
         hideAllComponents()
 
         when (displayProducts) {
-            is DisplayProducts.Error -> {
+            is DisplayProducts.ServerError -> {
                 binding.errorTextView.visibility = View.VISIBLE
             }
+            is DisplayProducts.ServerNoProducts -> {
+                binding.noProductsTextView.visibility = View.VISIBLE
+            }
             is DisplayProducts.ProductList -> {
-                if (displayProducts.products.isEmpty()) {
-                    binding.noProductsTextView.visibility = View.VISIBLE
-                } else {
-                    rvAdapter.updateItems(displayProducts.products)
-                    binding.recyclerView.visibility = View.VISIBLE
-                }
+                rvAdapter.updateItems(displayProducts.products)
+                binding.recyclerView.visibility = View.VISIBLE
             }
         }
     }

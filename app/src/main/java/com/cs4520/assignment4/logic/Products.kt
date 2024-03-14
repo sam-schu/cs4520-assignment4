@@ -1,6 +1,5 @@
 package com.cs4520.assignment4.logic
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -55,7 +54,9 @@ private fun Product.toCategorizedProduct(): CategorizedProduct {
 }
 
 sealed interface DisplayProducts {
-    data object Error : DisplayProducts
+    data object ServerError : DisplayProducts
+
+    data object ServerNoProducts : DisplayProducts
 
     data class ProductList(val products: List<CategorizedProduct>) : DisplayProducts
 }
@@ -73,16 +74,20 @@ class ProductsViewModel(private val repo: ProductRepo = Repo()) : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val products = api.getAllProducts()
-                val categorizedProducts = products.map { it.toCategorizedProduct() }
-                withContext(Dispatchers.Main) {
-                    _displayProducts.value = DisplayProducts.ProductList(categorizedProducts)
-                }
-                if (products.isNotEmpty()) {
+                if (products.isEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        _displayProducts.value = DisplayProducts.ServerNoProducts
+                    }
+                } else {
+                    val categorizedProducts = products.map { it.toCategorizedProduct() }
+                    withContext(Dispatchers.Main) {
+                        _displayProducts.value = DisplayProducts.ProductList(categorizedProducts)
+                    }
                     repo.cacheProducts(products)
                 }
             } catch (e: HttpException) {
                 withContext(Dispatchers.Main) {
-                    _displayProducts.value = DisplayProducts.Error
+                    _displayProducts.value = DisplayProducts.ServerError
                 }
             } catch (e: UnknownHostException) {
                 // handle device offline
