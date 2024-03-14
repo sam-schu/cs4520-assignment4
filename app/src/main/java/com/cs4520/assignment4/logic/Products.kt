@@ -77,7 +77,9 @@ class ProductsViewModel(private val repo: ProductRepo = Repo()) : ViewModel() {
                 withContext(Dispatchers.Main) {
                     _displayProducts.value = DisplayProducts.ProductList(categorizedProducts)
                 }
-                repo.cacheProducts(products)
+                if (products.isNotEmpty()) {
+                    repo.cacheProducts(products)
+                }
             } catch (e: HttpException) {
                 withContext(Dispatchers.Main) {
                     _displayProducts.value = DisplayProducts.Error

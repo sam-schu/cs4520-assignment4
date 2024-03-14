@@ -2,7 +2,7 @@ package com.cs4520.assignment4.model
 
 class Repo : ProductRepo {
     override fun cacheProducts(products: List<Product>) {
-        getDao()?.addProducts(products)
+        getDao()?.replaceCache(products)
     }
 
     override fun getCachedProducts(): List<Product>? {
