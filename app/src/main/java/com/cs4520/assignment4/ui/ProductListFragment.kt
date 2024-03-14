@@ -47,26 +47,29 @@ class ProductListFragment : Fragment() {
     }
 
     private fun onDisplayProductsChanged(displayProducts: DisplayProducts) {
-        with (binding) {
-            when (displayProducts) {
-                is DisplayProducts.Error -> {
-                    recyclerView.visibility = View.INVISIBLE
-                    noProductsTextView.visibility = View.INVISIBLE
-                    errorTextView.visibility = View.VISIBLE
-                }
-                is DisplayProducts.ProductList -> {
-                    if (displayProducts.products.isEmpty()) {
-                        recyclerView.visibility = View.INVISIBLE
-                        errorTextView.visibility = View.INVISIBLE
-                        noProductsTextView.visibility = View.VISIBLE
-                    } else {
-                        rvAdapter.updateItems(displayProducts.products)
-                        errorTextView.visibility = View.INVISIBLE
-                        noProductsTextView.visibility = View.INVISIBLE
-                        recyclerView.visibility = View.VISIBLE
-                    }
+        hideAllComponents()
+
+        when (displayProducts) {
+            is DisplayProducts.Error -> {
+                binding.errorTextView.visibility = View.VISIBLE
+            }
+            is DisplayProducts.ProductList -> {
+                if (displayProducts.products.isEmpty()) {
+                    binding.noProductsTextView.visibility = View.VISIBLE
+                } else {
+                    rvAdapter.updateItems(displayProducts.products)
+                    binding.recyclerView.visibility = View.VISIBLE
                 }
             }
+        }
+    }
+
+    private fun hideAllComponents() {
+        with (binding) {
+            progressBar.visibility = View.INVISIBLE
+            recyclerView.visibility = View.INVISIBLE
+            errorTextView.visibility = View.INVISIBLE
+            noProductsTextView.visibility = View.INVISIBLE
         }
     }
 }
