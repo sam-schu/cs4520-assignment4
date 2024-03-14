@@ -1,15 +1,20 @@
 package com.cs4520.assignment4.logic
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cs4520.assignment4.ApiService
 import com.cs4520.assignment4.RetrofitBuilder
+import com.cs4520.assignment4.model.Product
+import com.cs4520.assignment4.model.ProductRepo
+import com.cs4520.assignment4.model.Repo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
+import java.net.UnknownHostException
 
 /**
  * Represents a single product (equipment or food).
@@ -38,18 +43,14 @@ sealed class CategorizedProduct(
     ) : CategorizedProduct(name, expiryDate, price)
 }
 
-data class ApiProduct(
-    val name: String, val type: String, val expiryDate: String?, val price: Double
-) {
-    fun toCategorizedProduct(): CategorizedProduct {
-        return when (type) {
-            "Equipment" -> CategorizedProduct.Equipment(name, expiryDate, price)
-            "Food" -> CategorizedProduct.Food(name, expiryDate, price)
-            else -> throw IllegalStateException(
-                "The product type must be either \"Equipment\" or \"Food\" in order for it to be "
-                + "converted to a CategorizedProduct"
-            )
-        }
+private fun Product.toCategorizedProduct(): CategorizedProduct {
+    return when (type) {
+        "Equipment" -> CategorizedProduct.Equipment(name, expiryDate, price)
+        "Food" -> CategorizedProduct.Food(name, expiryDate, price)
+        else -> throw IllegalStateException(
+            "The product type must be either \"Equipment\" or \"Food\" in order for it to be "
+                    + "converted to a CategorizedProduct"
+        )
     }
 }
 
@@ -62,7 +63,7 @@ sealed interface DisplayProducts {
 /**
  * Manages a list of products and allows products to be mass imported from a list.
  */
-class ProductsViewModel : ViewModel() {
+class ProductsViewModel(private val repo: ProductRepo = Repo()) : ViewModel() {
     private val _displayProducts = MutableLiveData<DisplayProducts>()
 
     val displayProducts: LiveData<DisplayProducts> = _displayProducts
@@ -71,14 +72,18 @@ class ProductsViewModel : ViewModel() {
         val api = RetrofitBuilder.getRetrofit().create(ApiService::class.java)
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val products = api.getAllProducts().map { it.toCategorizedProduct() }
+                val products = api.getAllProducts()
+                val categorizedProducts = products.map { it.toCategorizedProduct() }
                 withContext(Dispatchers.Main) {
-                    _displayProducts.value = DisplayProducts.ProductList(products)
+                    _displayProducts.value = DisplayProducts.ProductList(categorizedProducts)
                 }
+                repo.cacheProducts(products)
             } catch (e: HttpException) {
                 withContext(Dispatchers.Main) {
                     _displayProducts.value = DisplayProducts.Error
                 }
+            } catch (e: UnknownHostException) {
+                // handle device offline
             }
         }
     }
