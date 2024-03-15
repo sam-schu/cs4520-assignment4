@@ -108,7 +108,7 @@ class ProductsViewModel(private val repo: ProductRepo = Repo()) : ViewModel() {
         val api = RetrofitBuilder.getRetrofit().create(ApiService::class.java)
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val products = api.getAllProducts()
+                val products = api.getAllProducts().distinct()
                 if (products.isEmpty()) {
                     withContext(Dispatchers.Main) {
                         _displayProducts.value = DisplayProducts.ServerNoProducts
