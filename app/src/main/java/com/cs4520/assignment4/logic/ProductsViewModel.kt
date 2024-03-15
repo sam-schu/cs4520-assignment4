@@ -45,6 +45,12 @@ sealed class CategorizedProduct(
 // Converts a Product to a CategorizedProduct of the correct type; throws an
 // IllegalStateException if the Product's type is not "Equipment" or "Food"
 private fun Product.toCategorizedProduct(): CategorizedProduct {
+    if (type == null || name == null || price == null) {
+        throw IllegalStateException(
+            "The product is missing a type, name, or price and thus cannot be converted to a "
+                    + "CategorizedProduct"
+        )
+    }
     return when (type) {
         "Equipment" -> CategorizedProduct.Equipment(name, expiryDate, price)
         "Food" -> CategorizedProduct.Food(name, expiryDate, price)
@@ -108,7 +114,9 @@ class ProductsViewModel(private val repo: ProductRepo = Repo()) : ViewModel() {
         val api = RetrofitBuilder.getRetrofit().create(ApiService::class.java)
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val products = api.getAllProducts().distinct()
+                val products = api.getAllProducts().distinct().filterNot {
+                    it.type == null || it.name == null || it.price == null
+                }
                 if (products.isEmpty()) {
                     withContext(Dispatchers.Main) {
                         _displayProducts.value = DisplayProducts.ServerNoProducts
