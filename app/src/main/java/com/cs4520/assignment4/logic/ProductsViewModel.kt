@@ -16,7 +16,7 @@ import retrofit2.HttpException
 import java.net.UnknownHostException
 
 /**
- * Represents a single product (equipment or food).
+ * Represents a single product in a particular category - either equipment or food.
  *
  * Contains a name, a price, and possibly an expiry date.
  */
@@ -42,6 +42,8 @@ sealed class CategorizedProduct(
     ) : CategorizedProduct(name, expiryDate, price)
 }
 
+// Converts a Product to a CategorizedProduct of the correct type; throws an
+// IllegalStateException if the Product's type is not "Equipment" or "Food"
 private fun Product.toCategorizedProduct(): CategorizedProduct {
     return when (type) {
         "Equipment" -> CategorizedProduct.Equipment(name, expiryDate, price)
@@ -53,24 +55,55 @@ private fun Product.toCategorizedProduct(): CategorizedProduct {
     }
 }
 
+/**
+ * Holds information about the product list that the view should display.
+ */
 sealed interface DisplayProducts {
+    /**
+     * Represents that no products could be obtained because the server gave an error.
+     */
     data object ServerError : DisplayProducts
 
+    /**
+     * Represents that no products could be obtained because the server gave an empty response.
+     */
     data object ServerNoProducts : DisplayProducts
 
+    /**
+     * Represents that no products could be obtained because the device was offline, and either no
+     * products had been stored in the local database or the database access failed.
+     */
     data object OfflineNoProducts : DisplayProducts
 
+    /**
+     * Represents that a list of products was obtained either from the server, or from the local
+     * database if the device was offline. Holds this list of products.
+     */
     data class ProductList(val products: List<CategorizedProduct>) : DisplayProducts
 }
 
 /**
- * Manages a list of products and allows products to be mass imported from a list.
+ * Manages the products to be displayed and interfaces with the server API and local Room database
+ * to load and store these products.
  */
 class ProductsViewModel(private val repo: ProductRepo = Repo()) : ViewModel() {
     private val _displayProducts = MutableLiveData<DisplayProducts>()
 
+    /**
+     * Holds the list of products to be displayed, or information about why these products could not
+     * be obtained.
+     */
     val displayProducts: LiveData<DisplayProducts> = _displayProducts
 
+    /**
+     * Loads product data into the displayProducts property.
+     *
+     * If the device is online, attempts to load products from the server and updates
+     * displayProducts accordingly. If the server returned at least one product, the products
+     * stored in the local Room database are replaced with the newly obtained products. If the
+     * device is offline, attempts to load products from the database and updates displayProducts
+     * accordingly.
+     */
     fun loadProductData() {
         val api = RetrofitBuilder.getRetrofit().create(ApiService::class.java)
         viewModelScope.launch(Dispatchers.IO) {
@@ -85,7 +118,7 @@ class ProductsViewModel(private val repo: ProductRepo = Repo()) : ViewModel() {
                     withContext(Dispatchers.Main) {
                         _displayProducts.value = DisplayProducts.ProductList(categorizedProducts)
                     }
-                    repo.cacheProducts(products)
+                    repo.replaceStoredProducts(products)
                 }
             } catch (e: HttpException) {
                 withContext(Dispatchers.Main) {
@@ -93,7 +126,7 @@ class ProductsViewModel(private val repo: ProductRepo = Repo()) : ViewModel() {
                 }
             } catch (e: UnknownHostException) {
                 // handle device offline
-                val products = repo.getCachedProducts()
+                val products = repo.getStoredProducts()
                 if (products.isNullOrEmpty()) {
                     withContext(Dispatchers.Main) {
                         _displayProducts.value = DisplayProducts.OfflineNoProducts

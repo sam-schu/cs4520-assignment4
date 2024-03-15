@@ -46,6 +46,7 @@ class ProductListFragment : Fragment() {
         viewModel.loadProductData()
     }
 
+    // Updates the view based on the given product data (or lack thereof)
     private fun onDisplayProductsChanged(displayProducts: DisplayProducts) {
         hideAllComponents()
 
@@ -66,6 +67,7 @@ class ProductListFragment : Fragment() {
         }
     }
 
+    // Makes all components on the fragment invisible
     private fun hideAllComponents() {
         with (binding) {
             progressBar.visibility = View.INVISIBLE
@@ -76,9 +78,16 @@ class ProductListFragment : Fragment() {
     }
 }
 
+/**
+ * Represents a RecyclerView.Adapter that can be updated with new items.
+ */
 private abstract class UpdatableRecyclerViewAdapter<VH : RecyclerView.ViewHolder, ItemType> :
     RecyclerView.Adapter<VH>() {
 
+    /**
+     * Provides a new list of items to display, and automatically updates the recycler view to
+     * display these items.
+     */
     abstract fun updateItems(newItems: List<ItemType>)
 }
 
