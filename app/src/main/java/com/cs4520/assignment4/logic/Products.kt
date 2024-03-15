@@ -58,6 +58,8 @@ sealed interface DisplayProducts {
 
     data object ServerNoProducts : DisplayProducts
 
+    data object OfflineNoProducts : DisplayProducts
+
     data class ProductList(val products: List<CategorizedProduct>) : DisplayProducts
 }
 
@@ -91,6 +93,17 @@ class ProductsViewModel(private val repo: ProductRepo = Repo()) : ViewModel() {
                 }
             } catch (e: UnknownHostException) {
                 // handle device offline
+                val products = repo.getCachedProducts()
+                if (products.isNullOrEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        _displayProducts.value = DisplayProducts.OfflineNoProducts
+                    }
+                } else {
+                    val categorizedProducts = products.map { it.toCategorizedProduct() }
+                    withContext(Dispatchers.Main) {
+                        _displayProducts.value = DisplayProducts.ProductList(categorizedProducts)
+                    }
+                }
             }
         }
     }

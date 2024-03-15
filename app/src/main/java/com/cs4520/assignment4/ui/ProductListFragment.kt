@@ -54,7 +54,10 @@ class ProductListFragment : Fragment() {
                 binding.errorTextView.visibility = View.VISIBLE
             }
             is DisplayProducts.ServerNoProducts -> {
-                binding.noProductsTextView.visibility = View.VISIBLE
+                binding.serverNoProductsTextView.visibility = View.VISIBLE
+            }
+            is DisplayProducts.OfflineNoProducts -> {
+                binding.offlineNoProductsTextView.visibility = View.VISIBLE
             }
             is DisplayProducts.ProductList -> {
                 rvAdapter.updateItems(displayProducts.products)
@@ -68,7 +71,7 @@ class ProductListFragment : Fragment() {
             progressBar.visibility = View.INVISIBLE
             recyclerView.visibility = View.INVISIBLE
             errorTextView.visibility = View.INVISIBLE
-            noProductsTextView.visibility = View.INVISIBLE
+            serverNoProductsTextView.visibility = View.INVISIBLE
         }
     }
 }
