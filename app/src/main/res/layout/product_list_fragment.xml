@@ -33,6 +33,10 @@
         android:text="@string/products_error_text"
         android:textSize="20sp"
         android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:visibility="invisible"/>
 
     <TextView
@@ -42,6 +46,10 @@
         android:text="@string/server_no_products_text"
         android:textSize="20sp"
         android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:visibility="invisible"/>
 
     <TextView
@@ -51,6 +59,10 @@
         android:text="@string/offline_no_products_text"
         android:textSize="20sp"
         android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:visibility="invisible"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
