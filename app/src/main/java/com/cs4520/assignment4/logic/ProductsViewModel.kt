@@ -44,6 +44,7 @@ sealed class CategorizedProduct(
 
 // Converts a Product to a CategorizedProduct of the correct type; throws an
 // IllegalStateException if the Product's type is not "Equipment" or "Food"
+// or if any of its fields other than the expiry date is null
 private fun Product.toCategorizedProduct(): CategorizedProduct {
     if (type == null || name == null || price == null) {
         throw IllegalStateException(
